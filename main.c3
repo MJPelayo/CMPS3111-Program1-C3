@@ -1,3 +1,4 @@
+
 module main;
 
 import std::io;
@@ -87,9 +88,10 @@ fn void main()
         {
             io::printn("");
 
-            io::printn(
-                "ERROR: Invalid program."
-            );
+            // ------------------------------------------------
+            // Show the exact reason the program is invalid.
+            // ------------------------------------------------
+            validator::display_program_diagnostics(input);
 
             io::printn("");
 
@@ -360,3 +362,4 @@ fn void show_instructions()
 
     io::printn("");
 }
+
