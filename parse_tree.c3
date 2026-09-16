@@ -5,22 +5,6 @@ import std::io;
 
 // ============================================================
 // DISPLAY PARSE TREE
-//
-// Grammar:
-//
-// <program> → begin <instructions> end
-//
-// <instructions> → <instruction>
-//                 | <instruction> . <instructions>
-//
-// <instruction> → SQR <coord>-<coord>
-//                | TRI <coord>-<coord>-<coord>
-//
-// <coord> → <x><y>
-//
-// <x> → A | B | C | D | E | F | G
-//
-// <y> → 1 | 2 | 3 | 4 | 5 | 6
 // ============================================================
 
 fn void display_parse_tree(String input)
@@ -31,17 +15,20 @@ fn void display_parse_tree(String input)
     io::printn("==================================================");
     io::printn("");
 
-    // Extract the instruction section.
-    String instruction_text = input[6 .. input.len - 4];
 
-    // Separate instructions using the period.
-    String[] instructions = instruction_text.split('.');
+    String instruction_text =
+        input[6 .. input.len - 4];
+
+
+    String[] instructions =
+        instruction_text.split(tmem, ".");
+
 
     io::printn("<program>");
     io::printn("├── begin");
 
-    // <instructions> is a child of <program>.
     io::printn("├── <instructions>");
+
 
     display_instructions_tree(
         instructions,
@@ -49,7 +36,7 @@ fn void display_parse_tree(String input)
         "│   "
     );
 
-    // end is the final child of <program>.
+
     io::printn("└── end");
 
     io::printn("");
@@ -58,15 +45,7 @@ fn void display_parse_tree(String input)
 
 
 // ============================================================
-// DISPLAY <instructions> TREE
-//
-// Grammar:
-//
-// <instructions> → <instruction>
-//                 | <instruction> . <instructions>
-//
-// This method recursively displays the structure of
-// multiple instructions.
+// DISPLAY INSTRUCTIONS TREE
 // ============================================================
 
 fn void display_instructions_tree(
@@ -78,13 +57,10 @@ fn void display_instructions_tree(
     String instruction =
         instructions[index].trim();
 
+
     bool last_instruction =
         index == instructions.len - 1;
 
-
-    // --------------------------------------------------------
-    // <instruction>
-    // --------------------------------------------------------
 
     if (last_instruction)
     {
@@ -93,9 +69,13 @@ fn void display_instructions_tree(
             prefix
         );
 
+
         display_instruction_tree(
             instruction,
-            prefix + "    "
+            string::tformat(
+                "%s    ",
+                prefix
+            )
         );
     }
     else
@@ -105,15 +85,15 @@ fn void display_instructions_tree(
             prefix
         );
 
+
         display_instruction_tree(
             instruction,
-            prefix + "│   "
+            string::tformat(
+                "%s│   ",
+                prefix
+            )
         );
 
-
-        // ----------------------------------------------------
-        // Period between instructions.
-        // ----------------------------------------------------
 
         io::printfn(
             "%s├── .",
@@ -121,26 +101,26 @@ fn void display_instructions_tree(
         );
 
 
-        // ----------------------------------------------------
-        // Recursive <instructions>.
-        // ----------------------------------------------------
-
         io::printfn(
             "%s└── <instructions>",
             prefix
         );
 
+
         display_instructions_tree(
             instructions,
             index + 1,
-            prefix + "    "
+            string::tformat(
+                "%s    ",
+                prefix
+            )
         );
     }
 }
 
 
 // ============================================================
-// DISPLAY <instruction> TREE
+// DISPLAY INSTRUCTION TREE
 // ============================================================
 
 fn void display_instruction_tree(
@@ -149,19 +129,24 @@ fn void display_instruction_tree(
 )
 {
     String[] parts =
-        instruction.split(" ", true);
+        instruction.split(tmem, " ");
 
-    String command = parts[0];
 
-    String coordinates_text = parts[1];
+    String command =
+        parts[0];
+
+
+    String coordinates_text =
+        parts[1];
+
 
     String[] coordinates =
-        coordinates_text.split('-');
+        coordinates_text.split(tmem, "-");
 
 
-    // ========================================================
+    // --------------------------------------------------------
     // SQR
-    // ========================================================
+    // --------------------------------------------------------
 
     if (command == "SQR")
     {
@@ -171,20 +156,20 @@ fn void display_instruction_tree(
         );
 
 
-        // First coordinate.
-
         io::printfn(
             "%s├── <coord>",
             prefix
         );
 
+
         display_coordinate_tree(
             coordinates[0],
-            prefix + "│   "
+            string::tformat(
+                "%s│   ",
+                prefix
+            )
         );
 
-
-        // Dash.
 
         io::printfn(
             "%s├── -",
@@ -192,23 +177,25 @@ fn void display_instruction_tree(
         );
 
 
-        // Second coordinate.
-
         io::printfn(
             "%s└── <coord>",
             prefix
         );
 
+
         display_coordinate_tree(
             coordinates[1],
-            prefix + "    "
+            string::tformat(
+                "%s    ",
+                prefix
+            )
         );
     }
 
 
-    // ========================================================
+    // --------------------------------------------------------
     // TRI
-    // ========================================================
+    // --------------------------------------------------------
 
     else if (command == "TRI")
     {
@@ -218,69 +205,67 @@ fn void display_instruction_tree(
         );
 
 
-        // First coordinate.
-
         io::printfn(
             "%s├── <coord>",
             prefix
         );
+
 
         display_coordinate_tree(
             coordinates[0],
-            prefix + "│   "
+            string::tformat(
+                "%s│   ",
+                prefix
+            )
         );
 
-
-        // First dash.
 
         io::printfn(
             "%s├── -",
             prefix
         );
 
-
-        // Second coordinate.
 
         io::printfn(
             "%s├── <coord>",
             prefix
         );
 
+
         display_coordinate_tree(
             coordinates[1],
-            prefix + "│   "
+            string::tformat(
+                "%s│   ",
+                prefix
+            )
         );
 
-
-        // Second dash.
 
         io::printfn(
             "%s├── -",
             prefix
         );
 
-
-        // Third coordinate.
 
         io::printfn(
             "%s└── <coord>",
             prefix
         );
 
+
         display_coordinate_tree(
             coordinates[2],
-            prefix + "    "
+            string::tformat(
+                "%s    ",
+                prefix
+            )
         );
     }
 }
 
 
 // ============================================================
-// DISPLAY <coord> TREE
-//
-// Grammar:
-//
-// <coord> → <x><y>
+// DISPLAY COORDINATE TREE
 // ============================================================
 
 fn void display_coordinate_tree(
@@ -288,14 +273,19 @@ fn void display_coordinate_tree(
     String prefix
 )
 {
-    char x = coordinate[0];
-    char y = coordinate[1];
+    char x =
+        coordinate[0];
+
+
+    char y =
+        coordinate[1];
 
 
     io::printfn(
         "%s├── <x>",
         prefix
     );
+
 
     io::printfn(
         "%s│   └── %c",
@@ -308,6 +298,7 @@ fn void display_coordinate_tree(
         "%s└── <y>",
         prefix
     );
+
 
     io::printfn(
         "%s    └── %c",

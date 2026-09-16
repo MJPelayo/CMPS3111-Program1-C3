@@ -5,20 +5,28 @@ import validator;
 import derivation;
 import parse_tree;
 
+
+// ============================================================
+// MAIN
+// ============================================================
+
 fn void main()
 {
-    // Display instructions when the program starts.
     show_instructions();
 
-    // MAIN INPUT LOOP
+
     while (true)
     {
         io::printn("");
-        io::print("Enter string (EXIT = quit, INFO = instructions): ");
+
+        io::print(
+            "Enter string (EXIT = quit, INFO = instructions): "
+        );
+
 
         String? input = io::treadline();
 
-        // Handle end-of-file/input failure.
+
         if (catch input)
         {
             io::printn("");
@@ -26,7 +34,11 @@ fn void main()
             return;
         }
 
-        // EXIT COMMAND
+
+        // ----------------------------------------------------
+        // EXIT
+        // ----------------------------------------------------
+
         if (input == "EXIT" || input == "exit")
         {
             io::printn("");
@@ -34,7 +46,11 @@ fn void main()
             return;
         }
 
-        // INFO COMMAND
+
+        // ----------------------------------------------------
+        // INFO
+        // ----------------------------------------------------
+
         if (input == "INFO" || input == "info")
         {
             io::printn("");
@@ -42,7 +58,11 @@ fn void main()
             continue;
         }
 
+
+        // ----------------------------------------------------
         // EMPTY INPUT
+        // ----------------------------------------------------
+
         if (input.len == 0)
         {
             io::printn("");
@@ -50,30 +70,50 @@ fn void main()
             continue;
         }
 
-        // VALIDATE COMPLETE PROGRAM
-        bool is_valid = validator::validate_program(input);
 
-        // INVALID INPUT
+        // ----------------------------------------------------
+        // VALIDATE
+        // ----------------------------------------------------
+
+        bool is_valid =
+            validator::validate_program(input);
+
+
+        // ----------------------------------------------------
+        // INVALID
+        // ----------------------------------------------------
+
         if (!is_valid)
         {
             io::printn("");
 
-            io::printfn(
-                "ERROR: %s",
-                validator::get_program_error(input)
+            io::printn(
+                "ERROR: Invalid program."
             );
 
             io::printn("");
 
-            io::printn("Examples of valid input:");
-            io::printn("begin SQR A1-C4 end");
-            io::printn("begin TRI A1-C6-G3 end");
+            io::printn(
+                "Examples of valid input:"
+            );
+
+            io::printn(
+                "begin SQR A1-C4 end"
+            );
+
+            io::printn(
+                "begin TRI A1-C6-G3 end"
+            );
 
             io::printn("");
 
-            io::print("Enter Y to try again or EXIT to quit: ");
+            io::print(
+                "Enter Y to try again or EXIT to quit: "
+            );
+
 
             String? choice = io::treadline();
+
 
             if (catch choice)
             {
@@ -82,7 +122,7 @@ fn void main()
                 return;
             }
 
-            // Exit after an invalid input.
+
             if (choice == "EXIT" || choice == "exit")
             {
                 io::printn("");
@@ -90,14 +130,15 @@ fn void main()
                 return;
             }
 
-            // Retry after Y.
+
             if (choice == "Y" || choice == "y")
             {
                 continue;
             }
 
-            // Handle an invalid response.
+
             io::printn("");
+
             io::printn(
                 "Invalid choice. Returning to input prompt."
             );
@@ -105,24 +146,45 @@ fn void main()
             continue;
         }
 
+
+        // ----------------------------------------------------
         // VALID INPUT
+        // ----------------------------------------------------
+
         io::printn("");
 
-        io::printn("SUCCESS: Valid string!");
+        io::printn(
+            "SUCCESS: Valid string!"
+        );
 
         io::printn(
             "The input follows the required grammar."
         );
 
-        // RIGHTMOST DERIVATION
-        derivation::display_rightmost_derivation(input);
 
-        // PARSE TREE CHOICE
+        // ----------------------------------------------------
+        // RIGHTMOST DERIVATION
+        // ----------------------------------------------------
+
+        derivation::display_rightmost_derivation(
+            input
+        );
+
+
+        // ----------------------------------------------------
+        // PARSE TREE
+        // ----------------------------------------------------
+
         io::printn("");
 
-        io::print("Display parse tree? (Y/N): ");
+        io::print(
+            "Display parse tree? (Y/N): "
+        );
 
-        String? tree_choice = io::treadline();
+
+        String? tree_choice =
+            io::treadline();
+
 
         if (catch tree_choice)
         {
@@ -131,32 +193,45 @@ fn void main()
             return;
         }
 
+
         if (tree_choice == "Y" || tree_choice == "y")
         {
-            parse_tree::display_parse_tree(input);
+            parse_tree::display_parse_tree(
+                input
+            );
         }
-        else if (tree_choice == "N" || tree_choice == "n")
+        else if (
+            tree_choice == "N"
+            || tree_choice == "n"
+        )
         {
             io::printn("");
-            io::printn("Parse tree skipped.");
+
+            io::printn(
+                "Parse tree skipped."
+            );
         }
         else
         {
             io::printn("");
+
             io::printn(
                 "Invalid choice. Parse tree skipped."
             );
         }
 
+
         io::printn("");
 
-        io::printn("Ready for another input.");
+        io::printn(
+            "Ready for another input."
+        );
     }
 }
 
 
 // ============================================================
-// DISPLAY PROGRAM INSTRUCTIONS
+// DISPLAY INSTRUCTIONS
 // ============================================================
 
 fn void show_instructions()
@@ -175,13 +250,17 @@ fn void show_instructions()
 
     io::printn("");
 
+
+    // --------------------------------------------------------
     // GRAMMAR
+    // --------------------------------------------------------
 
     io::printn(
         "<program> → begin <instructions> end"
     );
 
     io::printn("");
+
 
     io::printn(
         "<instructions> → <instruction>"
@@ -193,6 +272,7 @@ fn void show_instructions()
 
     io::printn("");
 
+
     io::printn(
         "<instruction> → SQR <coord>-<coord>"
     );
@@ -202,6 +282,7 @@ fn void show_instructions()
     );
 
     io::printn("");
+
 
     io::printn(
         "<coord> → <x><y>"
@@ -217,9 +298,14 @@ fn void show_instructions()
 
     io::printn("");
 
-    // INPUT INSTRUCTIONS
 
-    io::printn("INPUT INSTRUCTIONS");
+    // --------------------------------------------------------
+    // INPUT INSTRUCTIONS
+    // --------------------------------------------------------
+
+    io::printn(
+        "INPUT INSTRUCTIONS"
+    );
 
     io::printn(
         "1. Input must begin with: begin"
@@ -251,9 +337,14 @@ fn void show_instructions()
 
     io::printn("");
 
-    // VALID EXAMPLES
 
-    io::printn("VALID EXAMPLES");
+    // --------------------------------------------------------
+    // VALID EXAMPLES
+    // --------------------------------------------------------
+
+    io::printn(
+        "VALID EXAMPLES"
+    );
 
     io::printn(
         "begin SQR A1-C4 end"
