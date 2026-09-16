@@ -161,7 +161,6 @@ fn void handle_recognize(
 {
     io::printn("Processing recognition request.");
 
-
     String input =
         extract_json_input(request);
 
@@ -274,6 +273,11 @@ fn void handle_recognize(
 
 // ============================================================
 // BUILD INSTRUCTION RESULTS
+//
+// Checks EVERY instruction.
+//
+// Also checks structural errors between instructions,
+// including the required space after a period.
 // ============================================================
 
 fn String build_instruction_results(String input)
@@ -319,30 +323,98 @@ fn String build_instruction_results(String input)
             instructions[i];
 
 
+        bool valid = true;
+
+        String error = "";
+
+
         // ----------------------------------------------------
-        // Remove exactly one separator space after a period.
+        // First instruction
         // ----------------------------------------------------
 
-        if (i > 0)
+        if (i == 0)
         {
-            if (
-                instruction.len > 0 &&
-                instruction[0] == ' '
-            )
+            if (instruction.len == 0)
             {
-                instruction =
-                    instruction[1 .. instruction.len - 1];
+                valid = false;
+
+                error =
+                    "Instruction is empty.";
             }
         }
 
 
-        bool valid =
-            validator::validate_instruction(instruction);
+        // ----------------------------------------------------
+        // Instructions after periods
+        // ----------------------------------------------------
+
+        else
+        {
+            if (instruction.len == 0)
+            {
+                valid = false;
+
+                error =
+                    "Instruction is empty.";
+            }
+            else if (instruction[0] != ' ')
+            {
+                valid = false;
+
+                error =
+                    "A period must be followed by exactly one space.";
+            }
+            else
+            {
+                // Remove exactly one required separator space.
+
+                instruction =
+                    instruction[
+                        1 ..
+                        instruction.len - 1
+                    ];
 
 
-        String error =
-            validator::get_instruction_error(instruction);
+                if (instruction.len == 0)
+                {
+                    valid = false;
 
+                    error =
+                        "Instruction is empty.";
+                }
+                else if (instruction[0] == ' ')
+                {
+                    valid = false;
+
+                    error =
+                        "A period must be followed by exactly one space.";
+                }
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // Validate the actual instruction.
+        // ----------------------------------------------------
+
+        if (valid)
+        {
+            error =
+                validator::get_instruction_error(
+                    instruction
+                );
+
+
+            if (error.len != 0)
+            {
+                valid = false;
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // Separate JSON objects with commas.
+        // ----------------------------------------------------
 
         if (i > 0)
         {
@@ -353,6 +425,10 @@ fn String build_instruction_results(String input)
                 );
         }
 
+
+        // ----------------------------------------------------
+        // VALID instruction
+        // ----------------------------------------------------
 
         if (valid)
         {
@@ -370,6 +446,12 @@ fn String build_instruction_results(String input)
                     json_escape(instruction)
                 );
         }
+
+
+        // ----------------------------------------------------
+        // INVALID instruction
+        // ----------------------------------------------------
+
         else
         {
             output =
@@ -624,8 +706,7 @@ fn String build_derivation(String input)
 // BUILD PARSE TREE
 //
 // ASCII characters are intentionally used here instead of
-// Unicode box-drawing characters. This prevents encoding
-// problems between C3, JSON, and the browser.
+// Unicode box-drawing characters to avoid encoding problems.
 // ============================================================
 
 fn String build_parse_tree(String input)
