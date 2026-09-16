@@ -1,7 +1,5 @@
 module validator;
 
-import std::io;
-
 
 // ============================================================
 // VALIDATE COORDINATE
@@ -90,11 +88,9 @@ fn bool validate_instruction(String instruction)
 
 fn String get_instruction_error(String instruction)
 {
-    // An instruction requires a command and coordinates.
-    //
-    // We will split the instruction around spaces.
     String[] parts = instruction.split(" ", true);
 
+    // An instruction requires a command and coordinates.
     if (parts.len != 2)
     {
         return "Invalid instruction '%s'. The instruction must contain a command followed by its coordinates."
@@ -233,7 +229,7 @@ fn String get_program_error(String input)
 
     // Multiple instructions are separated by periods.
     String[] instructions =
-        instruction_text.split(".");
+        instruction_text.split('.');
 
     // Validate every instruction.
     for (usz i = 0; i < instructions.len; i++)
