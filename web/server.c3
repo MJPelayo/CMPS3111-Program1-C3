@@ -19,12 +19,14 @@ fn void main()
     io::printn("==================================================");
     io::printn("");
 
-    io::printn("Starting server on http://127.0.0.1:8080 ...");
+    io::printn("Starting server on port 8080 ...");
 
     tcp::TcpServerSocket server =
-        tcp::listen("127.0.0.1", 8080, 10)!!;
+        tcp::listen("0.0.0.0", 8080, 10)!!;
 
     io::printn("Server started successfully.");
+	io::printn("Local access:   http://127.0.0.1:8080");
+	io::printn("Network access: http://<laptop-IP>:8080");
     io::printn("Serving files from web/public/");
     io::printn("API endpoint: /api/recognize");
     io::printn("Waiting for a browser connection...");
