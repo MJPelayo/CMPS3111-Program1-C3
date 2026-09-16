@@ -1,0 +1,588 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CMPS 3111 — Language Recognizer</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================================================
+         APPLICATION HEADER
+         ========================================================= -->
+
+    <header class="app-header">
+
+        <div class="brand">
+
+            <div class="brand-mark">&lt;/&gt;</div>
+
+            <div>
+                <h1>LANGUAGE RECOGNIZER</h1>
+                <p>CMPS 3111 • Programming Languages</p>
+            </div>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <button
+                id="helpButton"
+                class="help-button"
+                type="button"
+                onclick="openHelp()"
+                aria-label="Open instructions">
+
+                <span class="help-icon">?</span>
+                HELP
+
+            </button>
+
+
+            <div class="status">
+
+                <span class="status-dot"></span>
+
+                C3 BACKEND
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         HELP / INSTRUCTIONS MODAL
+         ========================================================= -->
+
+    <div
+        id="helpModal"
+        class="help-modal hidden"
+        aria-hidden="true"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="helpTitle">
+
+        <div class="help-box">
+
+            <div class="help-header">
+
+                <h2 id="helpTitle">
+                    Instructions
+                </h2>
+
+                <button
+                    id="helpClose"
+                    class="help-close"
+                    type="button"
+                    onclick="closeHelp()"
+                    aria-label="Close instructions">
+
+                    &times;
+
+                </button>
+
+            </div>
+
+
+            <div class="help-body">
+
+                <h3>
+                    How to use the Language Recognizer
+                </h3>
+
+                <p>
+                    Enter a program sentence in the input box
+                    and select <strong>Validate Program</strong>.
+                    The C3 language recognizer will check whether
+                    your program follows the BNF grammar.
+                </p>
+
+
+                <h3>
+                    Valid Examples
+                </h3>
+
+                <code class="help-example">
+                    begin SQR A1-C4 end
+                </code>
+
+                <code class="help-example">
+                    begin TRI A1-C6-G3 end
+                </code>
+
+                <code class="help-example">
+                    begin SQR A1-C4. TRI A1-C6-G3 end
+                </code>
+
+
+                <h3>
+                    Important Rules
+                </h3>
+
+                <ul>
+
+                    <li>
+                        Input is <strong>case-sensitive</strong>.
+                    </li>
+
+                    <li>
+                        Spaces are significant.
+                    </li>
+
+                    <li>
+                        Use exactly one space where the grammar
+                        requires a space.
+                    </li>
+
+                    <li>
+                        Coordinates use a letter from
+                        <strong>A–G</strong> followed by a number
+                        from <strong>1–6</strong>.
+                    </li>
+
+                    <li>
+                        An <strong>SQR</strong> instruction requires
+                        two coordinates.
+                    </li>
+
+                    <li>
+                        A <strong>TRI</strong> instruction requires
+                        three coordinates.
+                    </li>
+
+                    <li>
+                        Multiple instructions are separated
+                        by a period (<strong>.</strong>).
+                    </li>
+
+                    <li>
+                        A valid program must begin with
+                        <strong>begin</strong> and end with
+                        <strong>end</strong>.
+                    </li>
+
+                </ul>
+
+
+                <h3>
+                    Results
+                </h3>
+
+                <p>
+                    If the program is valid, the recognizer displays
+                    the rightmost derivation and parse tree.
+                    If the program is invalid, the recognizer
+                    displays the relevant validation errors.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MAIN APPLICATION
+         ========================================================= -->
+
+    <main class="container">
+
+
+        <!-- =====================================================
+             INTRODUCTION
+             ===================================================== -->
+
+        <section class="intro">
+
+            <div>
+
+                <span class="eyebrow">
+                    FORMAL LANGUAGE PROCESSOR
+                </span>
+
+                <h2>
+                    Test your program
+                    <span>against the BNF grammar.</span>
+                </h2>
+
+                <p>
+                    Enter a program sentence below and send it
+                    to the C3 language recognizer.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             INPUT / RESULT WORKSPACE
+             ===================================================== -->
+
+        <section class="workspace">
+
+
+            <!-- =================================================
+                 INPUT PANEL
+                 ================================================= -->
+
+            <div class="panel input-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span class="panel-label">
+                            INPUT
+                        </span>
+
+                        <h3>
+                            Program Sentence
+                        </h3>
+
+                    </div>
+
+                    <span class="terminal-label">
+                        C3 API
+                    </span>
+
+                </div>
+
+
+                <div class="editor">
+
+                    <div class="editor-top">
+
+                        <span class="window-dot"></span>
+                        <span class="window-dot"></span>
+                        <span class="window-dot"></span>
+
+                        <span class="editor-title">
+                            recognizer.input
+                        </span>
+
+                    </div>
+
+
+                    <textarea
+                        id="programInput"
+                        spellcheck="false"
+                        placeholder="begin SQR A1-C4 end"
+                        aria-label="Program input"></textarea>
+
+                </div>
+
+
+                <!-- Examples -->
+
+                <div class="examples">
+
+                    <span>
+                        Examples:
+                    </span>
+
+                    <button
+                        type="button"
+                        onclick="loadExample('sqr')">
+
+                        SQR
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="loadExample('tri')">
+
+                        TRI
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="loadExample('multiple')">
+
+                        MULTIPLE
+
+                    </button>
+
+                </div>
+
+
+                <!-- Actions -->
+
+                <div class="actions">
+
+                    <button
+                        id="validateButton"
+                        class="primary-button"
+                        type="button"
+                        onclick="recognizeProgram()">
+
+                        <span>▶</span>
+
+                        VALIDATE PROGRAM
+
+                    </button>
+
+
+                    <button
+                        class="secondary-button"
+                        type="button"
+                        onclick="clearProgram()">
+
+                        CLEAR
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RESULT PANEL
+                 ================================================= -->
+
+            <div class="panel result-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span class="panel-label">
+                            RESULT
+                        </span>
+
+                        <h3>
+                            Recognition Status
+                        </h3>
+
+                    </div>
+
+
+                    <span
+                        id="connectionStatus"
+                        class="connection-status">
+
+                        READY
+
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="resultContent"
+                    class="result-content empty-result">
+
+                    <div class="result-icon">
+                        &lt;?&gt;
+                    </div>
+
+                    <h3>
+                        Waiting for input
+                    </h3>
+
+                    <p>
+                        Enter a program and select
+                        <strong>Validate Program</strong>.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             OUTPUT TABS
+             ===================================================== -->
+
+        <section
+            id="outputSection"
+            class="output-section hidden">
+
+
+            <div class="tabs">
+
+                <button
+                    class="tab-button active"
+                    type="button"
+                    onclick="showTab('derivation', this)">
+
+                    RIGHTMOST DERIVATION
+
+                </button>
+
+
+                <button
+                    class="tab-button"
+                    type="button"
+                    onclick="showTab('tree', this)">
+
+                    PARSE TREE
+
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 DERIVATION
+                 ================================================= -->
+
+            <div
+                id="derivationTab"
+                class="tab-content active">
+
+                <div class="output-header">
+
+                    <div>
+
+                        <span class="panel-label">
+                            DERIVATION
+                        </span>
+
+                        <h3>
+                            Rightmost Derivation
+                        </h3>
+
+                    </div>
+
+
+                    <span class="output-badge">
+                        SENTENTIAL FORMS
+                    </span>
+
+                </div>
+
+
+                <pre
+                    id="derivationOutput"
+                    class="code-output"></pre>
+
+            </div>
+
+
+            <!-- =================================================
+                 PARSE TREE
+                 ================================================= -->
+
+            <div
+                id="treeTab"
+                class="tab-content">
+
+                <div class="output-header">
+
+                    <div>
+
+                        <span class="panel-label">
+                            STRUCTURE
+                        </span>
+
+                        <h3>
+                            Parse Tree
+                        </h3>
+
+                    </div>
+
+
+                    <span class="output-badge">
+                        GRAMMAR HIERARCHY
+                    </span>
+
+                </div>
+
+
+                <pre
+                    id="parseTreeOutput"
+                    class="code-output tree-output"></pre>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             GRAMMAR REFERENCE
+             ===================================================== -->
+
+        <section class="grammar-section">
+
+            <div class="grammar-header">
+
+                <div>
+
+                    <span class="panel-label">
+                        REFERENCE
+                    </span>
+
+                    <h3>
+                        BNF Grammar
+                    </h3>
+
+                </div>
+
+
+                <span class="grammar-tag">
+                    CMPS 3111
+                </span>
+
+            </div>
+
+
+            <pre class="grammar-code"><span>&lt;program&gt;</span> → begin <span>&lt;instructions&gt;</span> end
+
+<span>&lt;instructions&gt;</span> → <span>&lt;instruction&gt;</span>
+               | <span>&lt;instruction&gt;</span> . <span>&lt;instructions&gt;</span>
+
+<span>&lt;instruction&gt;</span> → SQR <span>&lt;coord&gt;</span>-<span>&lt;coord&gt;</span>
+              | TRI <span>&lt;coord&gt;</span>-<span>&lt;coord&gt;</span>-<span>&lt;coord&gt;</span>
+
+<span>&lt;coord&gt;</span> → <span>&lt;x&gt;&lt;y&gt;</span>
+
+<span>&lt;x&gt;</span> → A | B | C | D | E | F | G
+
+<span>&lt;y&gt;</span> → 1 | 2 | 3 | 4 | 5 | 6</pre>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         FOOTER
+         ========================================================= -->
+
+    <footer>
+
+        <span>
+            CMPS 3111 • Programming Languages • Program 1
+        </span>
+
+        <span>
+            C3 • Language Recognizer
+        </span>
+
+    </footer>
+
+
+    
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+
